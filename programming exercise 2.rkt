@@ -41,3 +41,25 @@
       ((<= (car lis1) (car lis2)) (merge-cps (cdr lis1) lis2 (lambda (v) (return (cons (car lis1) v)))))
       (else (merge-cps lis1 (cdr lis2) (lambda (v) (return (cons (car lis2) v))))))))
 
+; removedups takes a list of atoms and removes any atom that is a repeat of the atom that immediately precedes it.
+; > (removedups '(a a b b b c c a b b))
+; (a b c a b)
+
+(define removedups
+  (lambda (lis)
+    (cond
+      ((null? lis) '())
+      ((null? (cdr lis)) (cons (car lis) '()))
+      ((eq? (car lis) (car (cdr lis))) (removedups (cons (car lis) (cdr (cdr lis)))))
+      (else (cons (car lis) (removedups (cdr lis)))))))
+
+(define removedups-cps
+  (lambda (lis return)
+    (cond
+      ((null? lis) (return '()))
+      ((null? (cdr lis)) (return (cons (car lis) '())))
+      ((eq? (car lis) (car (cdr lis))) (removedups-cps (cons (car lis) (cdr (cdr lis))) (lambda (v) v)))
+      (else (removedups-cps (cdr lis) (lambda (v) (return (cons (car lis) v))))))))
+      
+  
+
