@@ -8,14 +8,17 @@
 
 (define insert
   (lambda (x lis)
-    (insert-cps x lis (lambda (v) v))))
+    (cond
+      ((null? lis) (cons x '()))
+      ((<= x (car lis)) (cons x lis))
+      (else (cons (car lis) (insert x (cdr lis)))))))
 
 (define insert-cps
   (lambda (x lis return)
     (cond
       ((null? lis) (return (cons x '())))
-      ((<= x (car lis)) (return (cons x lis)))                                     ; to do the comparison, it needs another stack frame
-      (else (insert-cps x (cdr lis) (lambda (v) (return (cons (car lis) v))))))))  ; to do the cons, it adds another stack frame
+      ((<= x (car lis)) (cons x lis))
+      (else (insert-cps x (cdr lis) (lambda (v) (return (cons (car lis) v))))))))
 
 (define factorial
   (lambda (n)
