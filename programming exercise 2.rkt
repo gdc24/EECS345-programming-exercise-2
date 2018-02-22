@@ -86,6 +86,47 @@
       (else (numparens-cps (cdr lis) (lambda (v) (return v)))))))
 
 
+; dup* takes a list and duplicates all contents, including any sublists
+; > (dup* '(1 2 (3 4) 5))
+; (1 1 2 2 (3 3 4 4) (3 3 4 4) 5 5)
+; not done
+
+(define dup*
+  (lambda (lis)
+    (cond
+      ((null? lis) '())
+      ((pair? (car lis)) (cons (dup* (car lis)) (dup* (cdr lis))))
+      (else (cons (car lis) (cons (car lis) (dup* (cdr lis))))))))
+
+(define dup*-cps
+  (lambda (lis return)
+    (cond
+      ((null? lis) (return '()))
+      ((pair? (car lis)) (dup*-cps (cdr lis) (lambda (v) (return (cons (dup*-cps (cdr lis) (lambda (v) v)) v)))))
+      (else (dup*-cps (cdr lis) (lambda (v) (return (cons (car lis) (cons (car lis) v)))))))))
+
+
+; removedups* takes a list, that can contain sublists, and removes any atom that is the repeat of the atom that immediately precedes it in the same sublist.
+; > (removedups* '(a a (b b b (d d) b ((d) d)) f (f f g)))
+; (a (b (d) b ((d) d)) f (f g))
+; not done
+
+
+; mergesort takes a list of numbers and returns a sorted version. If you recall the merge sort algorithm, you use the CPS version of split from lecture to divide the input list into two lists, you recursively call mergesort on each sublist, and then you call merge on the two lists returned by the recursive calls to mergesort.
+; (mergesort '()) ==> '()
+; (mergesort '(8 1 3 9 6 5 7 2 4 10)) ==> '(1 2 3 4 5 6 7 8 9 10)
+; not done
+
+
+
+; replaceatoms takes two lists. The first list can contain sublists, but the second list is a single list of atoms. The output should be the first list, but each atom of the first list, from left to right, is replaced by the corresponding atom of the second list, until the second list runs out of atoms.
+; > (replaceatoms '((a ((b) c d) ((((e) f g) (h i)) j (k l))) m n (o p)) '(z y x w v u t s r q p o n m l k j))
+; ((z ((y) x w) ((((v) u t) (s r)) q (p o))) n m (l k))
+; > (replaceatoms '((a ((b) c d) ((((e) f g) (h i)) j (k l))) m n (o p)) '(z y x w v u))
+; ((z ((y) x w) ((((v) u g) (h i)) j (k l))) m n (o p))
+; not done
+
+
 
 
 
