@@ -60,6 +60,26 @@
       ((null? (cdr lis)) (return (cons (car lis) '())))
       ((eq? (car lis) (car (cdr lis))) (removedups-cps (cons (car lis) (cdr (cdr lis))) (lambda (v) v)))
       (else (removedups-cps (cdr lis) (lambda (v) (return (cons (car lis) v))))))))
+
+; numparens takes a list and returns the number of pairs of parentheses
+; > (numparens '(1 2 3))
+; 1
+; > (numparens '(1 () (()) (2 3 (4)))
+; 6
+
+(define numparens
+  (lambda (lis)
+    (cond
+      ((null? lis) '1)
+      ((list? (car lis)) (+ (numparens (car lis)) (numparens (cdr lis))))
+      (else (numparens (cdr lis))))))
+
+(define numparens-cps
+  (lambda (lis return)
+    (cond
+      ((null? lis) (return 1))
+      ((list? (car lis)) (numparens-cps (car lis) (lambda (v) (return (+ (numparens-cps (cdr lis) (lambda (v) v)) v)))))  ; uses two stack frames when calling (car lis) and 3 for +, numparens-cps, and (cdr lis)
+      (else (numparens-cps (cdr lis) (lambda (v) (return v)))))))
       
-  
+
 
