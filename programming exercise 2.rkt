@@ -13,6 +13,7 @@
 ; insert takes a number and a list of numbers in order and inserts the number in the proper place.
 ; > (insert 7 '(1 4 5 6 9 10))
 ; (1 4 5 6 7 9 10)
+; works but sometimes uses 2 stack frames
 
 (define insert
   (lambda (x lis)
@@ -28,6 +29,7 @@
 ; merge takes two lists of numbers that are in order and returns a list that contains the combination of both lists in order.
 ; > (merge '(3 5 6 7 9) '(0 1 2 4 6 8 9 10))
 ; (0 1 2 3 4 5 6 6 7 8 9 9 10)
+; works but sometimes uses two stack frames (i think...test again to see where)
 
 (define merge
   (lambda (lis1 lis2)
@@ -44,6 +46,7 @@
 ; removedups takes a list of atoms and removes any atom that is a repeat of the atom that immediately precedes it.
 ; > (removedups '(a a b b b c c a b b))
 ; (a b c a b)
+; straight up doesn't work
 
 (define removedups
   (lambda (lis)
@@ -66,6 +69,7 @@
 ; 1
 ; > (numparens '(1 () (()) (2 3 (4)))
 ; 6
+; works but sometimes uses 2 or 3 stack frames
 
 (define numparens
   (lambda (lis)
@@ -80,6 +84,8 @@
       ((null? lis) (return 1))
       ((list? (car lis)) (numparens-cps (car lis) (lambda (v) (return (+ (numparens-cps (cdr lis) (lambda (v) v)) v)))))  ; uses two stack frames when calling (car lis) and 3 for +, numparens-cps, and (cdr lis)
       (else (numparens-cps (cdr lis) (lambda (v) (return v)))))))
-      
+
+
+
 
 
