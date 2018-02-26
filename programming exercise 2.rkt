@@ -46,7 +46,7 @@
 ; removedups takes a list of atoms and removes any atom that is a repeat of the atom that immediately precedes it.
 ; > (removedups '(a a b b b c c a b b))
 ; (a b c a b)
-; straight up doesn't work
+; works but haven't tested to see how many stack frames it uses yet
 
 (define removedups
   (lambda (lis)
@@ -61,7 +61,7 @@
     (cond
       ((null? lis) (return '()))
       ((null? (cdr lis)) (return (cons (car lis) '())))
-      ((eq? (car lis) (car (cdr lis))) (removedups-cps (cons (car lis) (cdr (cdr lis))) (lambda (v) v)))
+      ((eq? (car lis) (car (cdr lis))) (removedups-cps (cons (car lis) (cddr lis)) (lambda (v) (return v))))
       (else (removedups-cps (cdr lis) (lambda (v) (return (cons (car lis) v))))))))
 
 ; numparens takes a list and returns the number of pairs of parentheses
@@ -89,7 +89,7 @@
 ; dup* takes a list and duplicates all contents, including any sublists
 ; > (dup* '(1 2 (3 4) 5))
 ; (1 1 2 2 (3 3 4 4) (3 3 4 4) 5 5)
-; not done
+; not done; doesn't duplicate the sublist
 
 (define dup*
   (lambda (lis)
@@ -102,7 +102,7 @@
   (lambda (lis return)
     (cond
       ((null? lis) (return '()))
-      ((pair? (car lis)) (dup*-cps (cdr lis) (lambda (v) (return (cons (dup*-cps (cdr lis) (lambda (v) v)) v)))))
+      ((pair? (car lis)) (dup*-cps (cdr lis) (lambda (v) (return (cons (dup*-cps (car lis) (lambda (v) v)) v)))))
       (else (dup*-cps (cdr lis) (lambda (v) (return (cons (car lis) (cons (car lis) v)))))))))
 
 
