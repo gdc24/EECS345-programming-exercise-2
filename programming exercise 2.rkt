@@ -109,17 +109,72 @@
 ; removedups* takes a list, that can contain sublists, and removes any atom that is the repeat of the atom that immediately precedes it in the same sublist.
 ; > (removedups* '(a a (b b b (d d) b ((d) d)) f (f f g)))
 ; (a (b (d) b ((d) d)) f (f g))
-; not done
+; done but not tested
+(define removedups*
+  (lambda (lis)
+    (cond
+      ((null? lis) '())
+      ((list? (car lis)) (cons (removedups* (car lis)) (removedups* (cdr lis))))
+      ((null? (cdr lis)) (cons (car lis) '()))
+      ((eq? (car lis) (car (cdr lis))) (removedups* (cons (car lis) (cdr (cdr lis)))))
+      (else (cons (car lis) (removedups* (cdr lis)))))))
 
+(define removedups*-cps
+  (lambda (lis return)
+    (cond
+      ((null? lis) (return '()))
+      ((list? (car lis)) (removedups*-cps (cdr lis) (lambda (v) (return (cons (removedups*-cps (car lis) (lambda (v) v)) v)))))
+      ((null? (cdr lis)) (return (cons (car lis) '())))
+      ((eq? (car lis) (car (cdr lis))) (removedups*-cps (cons (car lis) (cddr lis)) (lambda (v) (return v)))) 
+      (else (removedups*-cps (cdr lis) (lambda (v) (return (cons (car lis) v))))))))
 
-; mergesort takes a list of numbers and returns a sorted version. If you recall the merge sort algorithm, you use the CPS version of split from lecture to divide the input list into two lists, you recursively call mergesort on each sublist, and then you call merge on the two lists returned by the recursive calls to mergesort.
+; mergesort takes a list of numbers and returns a sorted version. If you recall the merge sort algorithm,
+; you use the CPS version of split from lecture to divide the input list into two lists,
+; you recursively call mergesort on each sublist,
+; and then you call merge on the two lists returned by the recursive calls to mergesort.
 ; (mergesort '()) ==> '()
 ; (mergesort '(8 1 3 9 6 5 7 2 4 10)) ==> '(1 2 3 4 5 6 7 8 9 10)
 ; not done
 
 
 
-; replaceatoms takes two lists. The first list can contain sublists, but the second list is a single list of atoms. The output should be the first list, but each atom of the first list, from left to right, is replaced by the corresponding atom of the second list, until the second list runs out of atoms.
+
+; merge
+(define merge
+  (lambda (lis1 lis2)
+    (cond
+      ((null? lis1) lis2)
+      ((null? lis2) lis1)
+      ((<= (car lis1) (car lis2)) (cons (car lis1) (merge (cdr lis1) lis2)))
+      (else (cons (car lis2) (merge lis1 (cdr lis2)))))))
+
+; does not work
+(define merge-cps
+  (lambda (lis1 lis2 return)
+    (cond
+      ((null? lis1) (return lis2))
+      ((null? lis2) (return lis1))
+      ((<= (car lis1) (car lis2)) (merge-cps (cdr lis1) lis2 (lambda (v) (return (cons (car lis1) v)))))
+      (else (merge-cps lis1 (cdr lis2) (lambda (v) (return (cons (car lis2) v))))))))
+
+
+
+      
+
+
+
+; the cps version of split.  call with the initial continution; (lambda (v1 v2) (list v1 v2))
+(define split-cps
+  (lambda (lis return)
+    (cond
+      ((null? lis) (return '() '()))
+      ((null? (cdr lis)) (return lis '()))
+      (else (split-cps (cddr lis) (lambda (v1 v2) (return (cons (car lis) v1) (cons (cadr lis) v2))))))))
+
+
+; replaceatoms takes two lists. The first list can contain sublists, but the second list is a single list of atoms.
+; The output should be the first list, but each atom of the first list, from left to right, is replaced by the corresponding
+; atom of the second list, until the second list runs out of atoms.
 ; > (replaceatoms '((a ((b) c d) ((((e) f g) (h i)) j (k l))) m n (o p)) '(z y x w v u t s r q p o n m l k j))
 ; ((z ((y) x w) ((((v) u t) (s r)) q (p o))) n m (l k))
 ; > (replaceatoms '((a ((b) c d) ((((e) f g) (h i)) j (k l))) m n (o p)) '(z y x w v u))
